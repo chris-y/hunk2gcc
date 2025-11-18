@@ -47,18 +47,18 @@ hunk file (in this case, from amiga.lib).
 
 I first wanted to use the name of the program unit for the name of the
 object file, but soon saw that those names are rarely to never useful, they
-often aren't even set, and sometimes (hi SAS..) even contain `.c' names,
+often aren't even set, and sometimes (hi SAS..) even contain '.c' names,
 not right what you usually want as object file;-) Names that are used now
-start with `obj.', followed by a serial number, followed by a pattern
+start with 'obj.', followed by a serial number, followed by a pattern
 built from the task address, such that the generated name is unique and
 doesn't overwrite any existing file. 
 
 As the final step convert all those files into an a.out style library by
 issuing:
-
+```
   ar qc libamiga.a obj.*
   ranlib libamiga.a
-
+```
 The ranlib run builds a symbol table in the archive, and makes accesses to
 the library much faster.
 
