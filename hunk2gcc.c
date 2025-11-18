@@ -50,6 +50,7 @@ quit
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <errno.h>
 
 /* This is really <dos/doshunks.h>, which is a 2.0 header file.
  * You can get those 2.0 headers from CATS.
@@ -91,6 +92,18 @@ ulong *file_buf = 0;
 
 /* if set no progress reports are output */
 int silent_mode = 0;
+
+struct relocation_info_old {
+                   int             r_address;
+                   unsigned int    r_symbolnum : 24,
+                                   r_pcrel : 1,
+                                   r_length : 2,
+                                   r_extern : 1,
+                                   r_baserel : 1,
+                                   r_jmptable : 1,
+                                   r_relative : 1,
+                                   r_copy : 1;
+           };
 
 struct reloc {
   /* at which offset to relocate */
@@ -361,8 +374,8 @@ DP(("HUNK_UNIT: units = %d\n", units));
 	  chip_data_size = chip_bss_size = 0;
 	  /* if someone want's to use'em on a sun, why shouldn't we make
 	   * the files sun-conformant? */
-	  hdr.a_mid = MID_SUN010;
-	  hdr.a_magic = OMAGIC;
+	  N_SET_MACHTYPE(hdr, M_68010);
+	  N_SET_MAGIC(hdr, OMAGIC);
 	  hunk_num = 0;
 	  next_hunk (& file_ptr);
 	  if (! silent_mode)
@@ -816,7 +829,7 @@ DP(("r->from = %d, r->to = %d, base = %d, offset = %d\n", r->from_hunk, r->to_hu
    * one-segment model for local relocations */
   for (i =  0, r = (struct reloc *)reloc_tab->base; i < reloc_tab->i; i++, r++)
     {
-      struct relocation_info rel;
+      struct relocation_info_old rel;
       uchar *core_addr;
       ulong delta;
       
