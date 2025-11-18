@@ -889,6 +889,7 @@ static void emit_aout_file (int fd, void *text, void *data, void *chip_data,
   hdr->a_syms = symbol_tab->i * sizeof (struct nlist);
   hdr->a_trsize = text_relocs.i * sizeof (struct relocation_info);
   hdr->a_drsize = data_relocs.i * sizeof (struct relocation_info);
+  if(!str_table) stralloc (0);
   *(uint32_t *)str_table = PUTLONG(strtab_index);
   {
     struct exec hdr_be;;
@@ -905,14 +906,14 @@ static void emit_aout_file (int fd, void *text, void *data, void *chip_data,
 
     write (fd, (char *)&hdr_be, sizeof (hdr_be));
   }
-  if (hdr->a_text) write (fd, text, hdr->a_text);
-  if (hdr->a_data - chip_data_size > 0)
+  if (text && hdr->a_text) write (fd, text, hdr->a_text);
+  if (data && (hdr->a_data - chip_data_size > 0))
     write (fd, data, hdr->a_data - chip_data_size);
-  if (chip_data_size) write (fd, chip_data, chip_data_size);
-  if (hdr->a_trsize) write (fd, text_relocs.base, hdr->a_trsize);
-  if (hdr->a_drsize) write (fd, data_relocs.base, hdr->a_drsize);
-  if (hdr->a_syms) write (fd, symbol_tab->base, hdr->a_syms);
-  write (fd, str_table, strtab_index);
+  if (chip_data && chip_data_size) write (fd, chip_data, chip_data_size);
+  if (text_relocs.base && hdr->a_trsize) write (fd, text_relocs.base, hdr->a_trsize);
+  if (data_relocs.base && hdr->a_drsize) write (fd, data_relocs.base, hdr->a_drsize);
+  if (symbol_tab->base && hdr->a_syms) write (fd, symbol_tab->base, hdr->a_syms);
+  if (str_table) write (fd, str_table, strtab_index);
   close (fd);
 }
 
