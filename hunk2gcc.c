@@ -60,9 +60,15 @@ quit
  */
 #include "doshunks.h"
 
+#ifndef BIGENDIAN
+#define swapEndian32(x) __builtin_bswap32(x)
+#else
+#define swapEndian32(x) (x)
+#endif
+
 /* strangely enough, this is missing from the doshunks.h file */
-#define HUNK_ATTRIBUTE(h) ((h) >> 30)
-#define HUNK_VALUE(h) ((h) & 0x3fffffff)
+#define HUNK_ATTRIBUTE(h) ((swapEndian32(h)) >> 30)
+#define HUNK_VALUE(h) ((swapEndian32(h)) & 0x3fffffff)
 #define HUNK_ATTR_CHIP 0x01
 
 /* These are the symbol names we are generating to denote the limit between
